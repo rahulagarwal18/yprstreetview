@@ -6,177 +6,225 @@ const viewer = new PANOLENS.Viewer({
   horizontalView: true
 });
 
-// Array to hold all panoramas
-const panoramas = [];
-let currentIndex = 0; // Global tracker for the current panorama
-
-// Dynamically load images into panoramas
+// Image sequence
 const imageNames = [
   "1.JPG", "2.JPG", "3.JPG", "4.JPG", "5.JPG", "6.JPG", "7.JPG",
-  "50.JPG", "8.JPG", "9.JPG", "10.JPG", "11.JPG", "12.JPG", "12.1.JPG", "0.JPG"
+  "50.JPG", "8.JPG", "9.JPG", "10.JPG", "100.JPG", "11.JPG", "0.JPG",
+  "k1.JPG", "k2.JPG", "k3.JPG", "k4.JPG", "k5.JPG", "k6.JPG", "k7.JPG",
+  "k8.JPG", "k9.JPG", "k10.JPG", "k11.JPG", "k12.JPG", "k13.JPG",
+  "k14.JPG", "k15.JPG", "k16.JPG", "12.JPG"
 ];
 
-imageNames.forEach((imageName, index) => {
-  const panorama = new PANOLENS.ImagePanorama(`static/images/${imageName}`);
-  panorama.index = index + 1; // Store the image index in the panorama object
-
-  // Add event for entering a panorama
-  panorama.addEventListener('enter', function () {
-    const label = document.getElementById('label');
-    label.style.display = 'block';
-    label.textContent = getLabelForImage(this.index);
-    // Update the global currentIndex (convert 1-indexed to 0-indexed)
-    currentIndex = this.index - 1;
-  });
-
-  // Add event for leaving a panorama
-  panorama.addEventListener('leave', function () {
-    const label = document.getElementById('label');
-    label.style.display = 'none';
-  });
-
-  panoramas.push(panorama);
+// Create and store panoramas
+const panoramas = imageNames.map((image, index) => {
+  const panorama = new PANOLENS.ImagePanorama(`images/${image}`);
+  panorama.index = index;
   viewer.add(panorama);
+  return panorama;
 });
 
-// Add navigation hotspots based on the provided navigation map
-panoramas.forEach((panorama, index) => {
-  // Entrance navigation (1 to 7)
-  if (index >= 0 && index <= 5) {
-    const hotspotNext = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotNext.position.set(500, -500, 1000); // Adjust position as needed
-    hotspotNext.addHoverText('Next');
-    hotspotNext.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[index + 1], 1000); // Smooth transition with 1000ms duration
-      currentIndex = index + 1;
-    });
-    panorama.add(hotspotNext);
+let currentIndex = 0; // Track current panorama
+
+// Function to update navigation buttons dynamically
+function updateNavButtons() {
+  const visibility = { left: 'none', right: 'none', forward: 'none', back: 'none' };
+
+  const index100 = imageNames.indexOf("100.JPG");
+  const index0 = imageNames.indexOf("0.JPG");
+  const index9 = imageNames.indexOf("9.JPG");
+  const index10 = imageNames.indexOf("10.JPG");
+  const index11 = imageNames.indexOf("11.JPG");
+  const index12 = imageNames.indexOf("12.JPG");
+  const indexK14 = imageNames.indexOf("k14.JPG");
+  const indexK15 = imageNames.indexOf("k15.JPG");
+
+  // Define when each button should be visible
+  if (currentIndex === 0) visibility.forward = 'block';
+  if (currentIndex >= 1 && currentIndex <= 6) visibility.forward = visibility.back = 'block';
+  if (currentIndex === 6) visibility.forward = visibility.right = visibility.back = 'block';
+  if (currentIndex === 7) visibility.left = visibility.forward = 'block';
+  if (currentIndex === 8) visibility.forward = visibility.back = 'block';
+  if (currentIndex === 9) visibility.left = visibility.forward = visibility.back = 'block';
+  if (currentIndex === 10) visibility.back = visibility.left = visibility.right = 'block';
+  if (currentIndex === 11) visibility.forward = visibility.back = 'block';
+  if (currentIndex === 12) visibility.back = visibility.right = 'block';
+  if (currentIndex === indexK15) visibility.forward = visibility.back = 'block'; // ✅ Added Forward & Back for k15.JPG
+  if (currentIndex === 13) visibility.left = visibility.right = 'block';
+
+  if (currentIndex === 14) {  // k1.JPG
+    visibility.forward = 'none';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'block';
   }
-
-  // Navigation from 7.jpg
-  if (index === 6) {
-    const hotspotRight = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotRight.position.set(1000, -500, 500); // Adjust position as needed
-    hotspotRight.addHoverText('Right');
-    hotspotRight.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[7], 1000); // Smooth transition to 50.jpg with 1000ms duration
-      currentIndex = 7;
-    });
-    panorama.add(hotspotRight);
-
-    const hotspotForward = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotForward.position.set(2000, -500, 500); // Adjust position as needed
-    hotspotForward.addHoverText('Forward');
-    hotspotForward.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[8], 1000); // Smooth transition to 9.jpg with 1000ms duration
-      currentIndex = 8;
-    });
-    panorama.add(hotspotForward);
+  
+  if (currentIndex === 15) {  // k2.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
   }
-
-  // Forward navigation (8 to 12)
-  if (index >= 8 && index <= 11) {
-    const hotspotNext = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotNext.position.set(2000, -500, 500); // Adjust position as needed
-    hotspotNext.addHoverText('Next');
-    hotspotNext.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[index + 1], 1000); // Smooth transition with 1000ms duration
-      currentIndex = index + 1;
-    });
-    panorama.add(hotspotNext);
+  
+  if (currentIndex === 16) {  // k3.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
   }
-
-  // Connecting 9.jpg to 0.jpg and 12.1.jpg
-  if (index === 8) {
-    const hotspotZero = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotZero.position.set(2000, -500, 500); // Adjust position as needed
-    hotspotZero.addHoverText('Enter');
-    hotspotZero.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[12], 1000); // Smooth transition with 1000ms duration
-      currentIndex = 12;
-    });
-    panorama.add(hotspotZero);
+  
+  if (currentIndex === 17) {  // k4.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
   }
-
-  if (index === 12) {
-    const hotspotPrev = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotPrev.position.set(-2000, -500, 500); // Adjust position as needed
-    hotspotPrev.addHoverText('Previous');
-    hotspotPrev.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[8], 1000); // Smooth transition with 1000ms duration
-      currentIndex = 8;
-    });
-    panorama.add(hotspotPrev);
-
-    const hotspotNext = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotNext.position.set(2000, -500, 500); // Adjust position as needed
-    hotspotNext.addHoverText('Next');
-    hotspotNext.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[13], 1000); // Smooth transition with 1000ms duration
-      currentIndex = 13;
-    });
-    panorama.add(hotspotNext);
+  
+  if (currentIndex === 18) {  // k5.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
   }
-
-  if (index === 13) {
-    const hotspotLeft = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotLeft.position.set(-2000, -500, 500); // Adjust position as needed
-    hotspotLeft.addHoverText('Left');
-    hotspotLeft.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[12], 1000); // Smooth transition with 1000ms duration
-      currentIndex = 12;
-    });
-    panorama.add(hotspotLeft);
-
-    const hotspotRight = new PANOLENS.Infospot(300, PANOLENS.DataImage.Arrow);
-    hotspotRight.position.set(2000, -500, 500); // Adjust position as needed
-    hotspotRight.addHoverText('Right');
-    hotspotRight.addEventListener('click', () => {
-      viewer.setPanorama(panoramas[14], 1000); // Smooth transition with 1000ms duration
-      currentIndex = 14;
-    });
-    panorama.add(hotspotRight);
+  
+  if (currentIndex === 19) {  // k6.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
   }
-});
-
-// Add keyboard navigation for panning and switching panoramas
-document.addEventListener('keydown', (event) => {
-  switch (event.key) {
-    case 'w':
-      viewer.OrbitControls.getInstance().rotateUp(0.05); // Pan up
-      break;
-    case 's':
-      viewer.OrbitControls.getInstance().rotateUp(-0.05); // Pan down
-      break;
-    case 'a':
-      viewer.OrbitControls.getInstance().rotateLeft(0.05); // Pan left
-      break;
-    case 'd':
-      viewer.OrbitControls.getInstance().rotateLeft(-0.05); // Pan right
-      break;
-    case 'ArrowRight':
-      if (currentIndex < panoramas.length - 1) {
-        currentIndex++;
-        viewer.setPanorama(panoramas[currentIndex], 1000); // Smooth transition with 1000ms duration
-      }
-      break;
-    case 'ArrowLeft':
-      if (currentIndex > 0) {
-        currentIndex--;
-        viewer.setPanorama(panoramas[currentIndex], 1000); // Smooth transition with 1000ms duration
-      }
-      break;
+  
+  if (currentIndex === 20) {  // k7.JPG
+    visibility.forward = 'none';
+    visibility.back = 'block';
+    visibility.left = 'block';
+    visibility.right = 'none';
   }
-});
+  
+  if (currentIndex === 21) {  // k8.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
+  }
+  
+  if (currentIndex === 22) {  // k9.JPG
+    visibility.forward = 'none';
+    visibility.back = 'block';
+    visibility.left = 'block';
+    visibility.right = 'none';
+  }
+  
+  if (currentIndex === 23) {  // k10.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
+  }
+  
+  if (currentIndex === 24) {  // k11.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
+  }
+  
+  if (currentIndex === 25) {  // k12.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
+  }
+  
+  if (currentIndex === 26) {  // k13.JPG
+    visibility.forward = 'block';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'none';
+  }
+  
+  if (currentIndex === 27) {  // k14.JPG
+    visibility.forward = 'none';
+    visibility.back = 'block';
+    visibility.left = 'none';
+    visibility.right = 'block';
+  } 
 
-// Helper function to return labels for specific images
-function getLabelForImage(imageIndex) {
-  // Customize these cases to match your campus locations
-  switch (imageIndex) {
-    case 1: return 'Entrance';
-    case 10: return 'Library';
-    case 20: return 'Canteen';
-    case 33: return 'Exit';
-    default: return `Location ${imageIndex}`;
+  if (currentIndex === index100) visibility.forward = 'none';
+  if (currentIndex === index100) visibility.left = 'block';
+  if (currentIndex === index0) visibility.left = 'block';
+  if (currentIndex === index0) visibility.right = 'block';
+  if (currentIndex === index10) visibility.right = 'block';
+  if (currentIndex === index11) visibility.back = 'block';
+  if (currentIndex === index11) visibility.forward = 'block';
+  if (currentIndex === index11) visibility.right = 'none';
+  if (currentIndex === index12) visibility.back = 'block';
+  if (currentIndex === index12) visibility.right = 'block';
+
+  // Apply visibility changes to buttons
+  document.querySelector('.nav-button.left').style.display = visibility.left;
+  document.querySelector('.nav-button.right').style.display = visibility.right;
+  document.querySelector('.nav-button.forward').style.display = visibility.forward;
+  document.querySelector('.nav-button.back').style.display = visibility.back;
+}
+
+// Navigation function
+function navigate(direction) {
+  const index100 = imageNames.indexOf("100.JPG");
+  const index0 = imageNames.indexOf("0.JPG");
+  const index9 = imageNames.indexOf("9.JPG");
+  const index10 = imageNames.indexOf("10.JPG");
+  const index11 = imageNames.indexOf("11.JPG");
+  const index12 = imageNames.indexOf("12.JPG");
+  const indexK14 = imageNames.indexOf("k14.JPG");
+  const indexK15 = imageNames.indexOf("k15.JPG");
+
+  const transitions = {
+    forward: { 
+      0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 8, 7: 14, 
+      8: 9,  
+      9: 10,  
+      [index11]: index12,
+      [indexK15]: index12, // ✅ k15.JPG → Forward → 12.JPG (FIXED)
+      14: 15, 15: 16, 16: 17, 17: 18, 18: 19, 19: 20, 
+      21:22, 23:24,24: 25, 25: 26, 26:27, 27: 28  
+    },
+    right: { 
+      6: 7, 13: 14, 26: 27, 27:28,
+      [index0]: index100,
+      [index10]: index11,
+      [index12]: indexK15,
+      14:15
+    },
+    left: { 
+      7: 6,20:21, 22:23,
+      [index0]: index9,
+      [index100]: index0,
+      [index9]: index0,
+      [index10] : index100
+    },
+    back: { 
+      1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 
+      8: 6,  
+      9: 8,  
+      10: 9,  
+      [index100]: 10,
+      [index11]: index10,
+      [index12]: index11,
+      [indexK15]: indexK14, // ✅ k15.JPG → Back → k14.JPG (FIXED)
+      13: 7, 14: 7, 15: 14, 16: 15, 17: 16, 18: 17, 
+      19: 18, 20: 19, 21: 20, 22:21, 27: 26, 26: 25, 25:24 , 24:23 , 23:22 
+    }
+  };
+
+  if (transitions[direction]?.[currentIndex] !== undefined) {
+    currentIndex = transitions[direction][currentIndex];
+    viewer.setPanorama(panoramas[currentIndex], 1000);
+    updateNavButtons();
   }
 }
+
+// Add all panoramas to the viewer
+panoramas.forEach(pano => viewer.add(pano));
+
+// Initial button update
+updateNavButtons();
