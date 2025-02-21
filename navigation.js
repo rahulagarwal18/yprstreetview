@@ -1,40 +1,30 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const viewerContainer = document.querySelector("#viewer");
+// Initialize the Panolens viewer
+const viewer = new PANOLENS.Viewer({
+  container: document.querySelector('#viewer'),
+  autoHideInfospot: false,
+  controlBar: true,
+  horizontalView: true
+});
 
-  if (!viewerContainer) {
-      console.error("Error: The #viewer container is missing!");
-      return;
-  }
+// Image sequence
+const imageNames = [
+  "1.JPG", "2.JPG", "3.JPG", "4.JPG", "5.JPG", "6.JPG", "7.JPG",
+  "50.JPG", "8.JPG", "9.JPG", "10.JPG", "100.JPG", "11.JPG", "0.JPG",
+  "k1.JPG", "k2.JPG", "k3.JPG", "k4.JPG", "k5.JPG", "k6.JPG", "k7.JPG",
+  "k8.JPG", "k9.JPG", "k10.JPG", "k11.JPG", "k12.JPG", "k13.JPG",
+  "k14.JPG", "k15.JPG", "k16.JPG", "12.JPG"
+];
 
-  if (!window.myViewer) {
-      window.myViewer = new PANOLENS.Viewer({
-          container: viewerContainer,
-          autoHideInfospot: false,
-          controlBar: true,
-          horizontalView: true
-      });
-  }
+// Create and store panoramas
+const panoramas = imageNames.map((image, index) => {
+  const panorama = new PANOLENS.ImagePanorama(`static/images/${image}`);
+  panorama.index = index;
+  viewer.add(panorama);
+  return panorama;
+});
 
-  // Image sequence
-  const imageNames = [
-      "1.JPG", "2.JPG", "3.JPG", "4.JPG", "5.JPG", "6.JPG", "7.JPG",
-      "50.JPG", "8.JPG", "9.JPG", "10.JPG", "100.JPG", "11.JPG", "0.JPG",
-      "k1.JPG", "k2.JPG", "k3.JPG", "k4.JPG", "k5.JPG", "k6.JPG", "k7.JPG",
-      "k8.JPG", "k9.JPG", "k10.JPG", "k11.JPG", "k12.JPG", "k13.JPG",
-      "k14.JPG", "k15.JPG", "k16.JPG", "12.JPG"
-  ];
+let currentIndex = 0; // Track current panorama
 
-  // Create panoramas
-  const panoramas = imageNames.map((image, index) => {
-      const panorama = new PANOLENS.ImagePanorama(`static/images/${image}`);
-      panorama.index = index;
-      return panorama;
-  });
-
-  let currentIndex = 0;
-
-  // Add panoramas to the viewer
-  panoramas.forEach(panorama => window.myViewer.add(panorama));
 // Function to update navigation buttons dynamically
 function updateNavButtons() {
   const visibility = { left: 'none', right: 'none', forward: 'none', back: 'none' };
@@ -228,23 +218,13 @@ function navigate(direction) {
 
   if (transitions[direction]?.[currentIndex] !== undefined) {
     currentIndex = transitions[direction][currentIndex];
-    window.myViewer.setPanorama(panoramas[currentIndex], 1000);
+    viewer.setPanorama(panoramas[currentIndex], 1000);
     updateNavButtons();
-}
+  }
 }
 
-// Attach navigation functions to buttons (if they exist)
-const buttons = document.querySelectorAll('.nav-button');
-buttons.forEach(button => {
-button.addEventListener("click", function () {
-    navigate(this.classList.contains("left") ? "left"
-        : this.classList.contains("right") ? "right"
-        : this.classList.contains("forward") ? "forward"
-        : "back");
-});
-});
+// Add all panoramas to the viewer
+panoramas.forEach(pano => viewer.add(pano));
 
-// Set initial panorama and update buttons
-window.myViewer.setPanorama(panoramas[currentIndex]);
+// Initial button update
 updateNavButtons();
-});
