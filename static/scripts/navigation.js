@@ -17,7 +17,7 @@ const imageNames = [
 
 // Create and store panoramas
 const panoramas = imageNames.map((image, index) => {
-  const panorama = new PANOLENS.ImagePanorama(`static/images/${image}`);
+  const panorama = new PANOLENS.ImagePanorama(`images/${image}`);
   panorama.index = index;
   viewer.add(panorama);
   return panorama;
