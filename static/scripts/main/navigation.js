@@ -1,6 +1,5 @@
-const viewer = new PANOLENS.Viewer({
-    container: document.querySelector('#viewer'),
-  });
+
+ 
   
   // Dynamically load images
   const panoramas = [];

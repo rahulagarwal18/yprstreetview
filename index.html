@@ -9,8 +9,10 @@
     <!-- Include the Panolens library -->
     <script src="https://cdn.jsdelivr.net/npm/panolens@0.12.0/build/panolens.min.js"></script>
     <!-- Your custom JavaScript file -->
-    <script src="scripts/navigation.js" defer></script>
-<link rel="stylesheet" href="styles/style.css">
+    <script src="static/scripts/navigation.js"></script>
+
+    <link rel="stylesheet" href="static/styles/style.css">
+
 
     <style>
         .nav-button {
@@ -26,17 +28,25 @@
             width: 50px;
             height: 50px;
         }
-        .nav-button.forward { bottom: 100px; right: 60px; }
-        .nav-button.back { bottom: 20px; right: 60px; }
-        .nav-button.left { bottom: 60px; right: 100px; }
-        .nav-button.right { bottom: 60px; right: 20px; }
+        .nav-button.forward { bottom: 80px; right: 50%; transform: translateX(50%); }
+.nav-button.back { bottom: 20px; right: 50%; transform: translateX(50%); }
+.nav-button.left { bottom: 50px; left: 20px; }
+.nav-button.right { bottom: 50px; right: 20px; }
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.7);
+    color: black;
+}
+
     </style>
 </head>
 <body>
-    <!-- Viewer container -->
+    <!-- Viewer container (required for Panolens) -->
     <div id="viewer" style="width: 100%; height: 100vh;"></div>
-    <!-- Label for displaying location names -->
-    <div id="label" class="label"></div>
+
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.7);
+    color: black;
+}
 
     <!-- Navigation buttons -->
     <button class="nav-button forward" onclick="navigate('forward')">&uarr;</button>
@@ -44,4 +54,11 @@
     <button class="nav-button left" onclick="navigate('left')">&larr;</button>
     <button class="nav-button right" onclick="navigate('right')">&rarr;</button>
 </body>
-</html>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Now it's safe to call functions like navigate()
+    });
+</script>
+
+    </html>
+    

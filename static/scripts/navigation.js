@@ -1,10 +1,12 @@
-// Initialize the Panolens viewer
-const viewer = new PANOLENS.Viewer({
-  container: document.querySelector('#viewer'),
-  autoHideInfospot: false,
-  controlBar: true,
-  horizontalView: true
-});
+  if (!window.myViewer) {
+    window.myViewer = new PANOLENS.Viewer({
+        container: document.querySelector('#viewer'),
+        autoHideInfospot: false,
+        controlBar: true,
+        horizontalView: true
+    });
+}
+
 
 // Image sequence
 const imageNames = [
@@ -17,9 +19,10 @@ const imageNames = [
 
 // Create and store panoramas
 const panoramas = imageNames.map((image, index) => {
-  const panorama = new PANOLENS.ImagePanorama(`images/${image}`);
+  const panorama = new PANOLENS.ImagePanorama(`static/images/${image}`);
   panorama.index = index;
-  viewer.add(panorama);
+  window.myViewer.add(panorama);
+
   return panorama;
 });
 
@@ -215,16 +218,17 @@ function navigate(direction) {
       19: 18, 20: 19, 21: 20, 22:21, 27: 26, 26: 25, 25:24 , 24:23 , 23:22 
     }
   };
-
   if (transitions[direction]?.[currentIndex] !== undefined) {
-    currentIndex = transitions[direction][currentIndex];
-    viewer.setPanorama(panoramas[currentIndex], 1000);
-    updateNavButtons();
+    const newIndex = transitions[direction][currentIndex];
+    if (newIndex >= 0 && newIndex < panoramas.length) { // ✅ Prevent out-of-bounds errors
+      currentIndex = newIndex;
+      window.myViewer.setPanorama(panoramas[currentIndex], 1000);
+      setTimeout(updateNavButtons, 1100);
+    } else {
+      console.warn("Invalid panorama index:", newIndex);
+    }
   }
-}
-
-// Add all panoramas to the viewer
-panoramas.forEach(pano => viewer.add(pano));
+  
 
 // Initial button update
-updateNavButtons();
+updateNavButtons();}
